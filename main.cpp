@@ -2,7 +2,6 @@
 #include <iostream>
 #include <limits>
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -16,10 +15,12 @@ struct Barang {
 
 class Gudang {
   private:
-    vector<Barang> daftarBarang;
+    static const int MAX_BARANG = 100;
+    Barang daftarBarang[MAX_BARANG];
+    int jumlahBarang = 0;
 
     int cariIndexById(const string& id) {
-        for (int i = 0; i < static_cast<int>(daftarBarang.size()); i++) {
+        for (int i = 0; i < jumlahBarang; i++) {
             if (daftarBarang[i].id == id) {
                 return i;
             }
@@ -30,8 +31,14 @@ class Gudang {
   public:
     void tambahData() {
         Barang barang;
-
+        
         cout << "\n=== Tambah Data ===\n";
+
+        if (jumlahBarang >= MAX_BARANG) {
+            cout << "Kapasitas gudang penuh.\n";
+            return;
+        }
+
         cout << "ID        : ";
         cin >> barang.id;
 
@@ -54,14 +61,15 @@ class Gudang {
         cout << "Harga     : ";
         cin >> barang.harga;
 
-        daftarBarang.push_back(barang);
+        daftarBarang[jumlahBarang] = barang;
+        jumlahBarang++;
         cout << "Data berhasil ditambahkan.\n";
     }
 
     void tampilkanData() {
         cout << "\n=== Data Gudang ===\n";
 
-        if (daftarBarang.empty()) {
+        if (jumlahBarang == 0) {
             cout << "Data masih kosong.\n";
             return;
         }
@@ -73,12 +81,12 @@ class Gudang {
              << setw(12) << "Harga" << '\n';
         cout << string(67, '-') << '\n';
 
-        for (const Barang& barang : daftarBarang) {
-            cout << left << setw(10) << barang.id
-                 << setw(20) << barang.nama
-                 << setw(15) << barang.kategori
-                 << setw(10) << barang.stok
-                 << setw(12) << fixed << setprecision(2) << barang.harga << '\n';
+        for (int i = 0; i < jumlahBarang; i++) {
+            cout << left << setw(10) << daftarBarang[i].id
+                 << setw(20) << daftarBarang[i].nama
+                 << setw(15) << daftarBarang[i].kategori
+                 << setw(10) << daftarBarang[i].stok
+                 << setw(12) << fixed << setprecision(2) << daftarBarang[i].harga << '\n';
         }
     }
 
@@ -123,12 +131,15 @@ class Gudang {
             return;
         }
 
-        daftarBarang.erase(daftarBarang.begin() + index);
+        for (int i = index; i < jumlahBarang - 1; i++) {
+            daftarBarang[i] = daftarBarang[i + 1];
+        }
+        jumlahBarang--;
         cout << "Data berhasil dihapus.\n";
     }
 
     void urutkanData() {
-        if (daftarBarang.empty()) {
+        if (jumlahBarang == 0) {
             cout << "\nData masih kosong.\n";
             return;
         }
@@ -142,8 +153,8 @@ class Gudang {
         cout << "Pilih sorting: ";
         cin >> pilihan;
 
-        for (int i = 0; i < static_cast<int>(daftarBarang.size()) - 1; i++) {
-            for (int j = 0; j < static_cast<int>(daftarBarang.size()) - i - 1; j++) {
+        for (int i = 0; i < jumlahBarang - 1; i++) {
+            for (int j = 0; j < jumlahBarang - i - 1; j++) {
                 bool tukar = false;
 
                 if (pilihan == 1 && daftarBarang[j].id > daftarBarang[j + 1].id) {
